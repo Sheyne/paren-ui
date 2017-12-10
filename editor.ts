@@ -21,12 +21,13 @@ function addParentConnections(parent: AttributedPair) {
 
 export class EditorView {
     map: Map<AttributedPair, PairView> = new Map();
-    currentIndexMapping: { [index: number]: AttributedPair } = {};
 
     container = document.createElement("div");
     private root: AttributedPair = { "name": "" };
     active: AttributedPair = this.root;
     selection: number | undefined = undefined;
+
+    onedit?: () => void;
 
     set program(prog: AttributedPair) {
         addParentConnections(prog);
@@ -39,7 +40,6 @@ export class EditorView {
         this.container.innerHTML = "";
         this.container.appendChild(startNode.table);
     }
-
 
     constrainSelection() {
         if (this.selection !== undefined) {
@@ -112,6 +112,9 @@ export class EditorView {
                     this.active.name = "";
                 }
             }
+        }
+        if (this.onedit !== undefined) {
+            this.onedit();
         }
         this.draw();
     }
@@ -193,6 +196,9 @@ export class EditorView {
                     this.active.name.slice(this.selection);
                 this.selection += 1;
             }
+        }
+        if (this.onedit !== undefined) {
+            this.onedit();
         }
         this.draw();
     }

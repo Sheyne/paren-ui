@@ -21,7 +21,7 @@ export namespace Lisp {
         name?: string;
     }
 
-    class DeadResult {
+    export class DeadResult {
         constructor(public message: string) {
         };
     }
@@ -244,4 +244,26 @@ export namespace Lisp {
         }
         return res;
     }
+}
+
+function traversal(prog: Lisp.Pair, flat: (pair: Lisp.Pair, idx: number) => void, idx: number[]) {
+    flat(prog, idx[0]);
+    idx[0]++;
+    if (!prog.args) {
+        return;
+    }
+    for (const func of prog.args) {
+        traversal(func, flat, idx);
+    }
+}
+
+export function flattenPairToIdx(prog: Lisp.Pair): Map<Lisp.Pair, number> {
+    const flat: Map<Lisp.Pair, number> = new Map();
+    traversal(prog, (a, b) => flat.set(a, b), [0]);
+    return flat;
+}
+export function flattenIdxToPair(prog: Lisp.Pair): Map<number, Lisp.Pair> {
+    const flat: Map<number, Lisp.Pair> = new Map();
+    traversal(prog, (a, b) => flat.set(b, a), [0]);
+    return flat;
 }

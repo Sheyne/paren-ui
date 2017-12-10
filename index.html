@@ -51,34 +51,37 @@
     
     Output: <div id="code"></div>
     
-    <script>
-    const modules = {
-        require: () => {
-            console.log("oh no!");
-        }
-    };
-    function define(modname, requestedArgs, func) {
-        modules[modname] = {};
-        const args = [];
-        for (const arg of requestedArgs) {
-            if (arg === "exports") {
-                args.push(modules[modname]);
-            } else {
-                args.push(modules[arg])
-            }
-        }
-        func.apply(undefined, args);
-    }
+    <script src="minimal-loader.js">
     </script>
-    <script src="main.js">
+    <script src="main.js?1">
     </script>
     <script>
-    const editor = new modules.editor.EditorView();
-    editor.program = {"name":"letrec","args":[{"name":"inc","args":[{"name":"lambda","args":[{"name":"","args":[{"name":"x"}]},{"name":"+","args":[{"name":"x"},{"name":"1"}]}]}]},{"name":"∑","args":[{"name":"lambda","args":[{"name":"","args":[{"name":"low"},{"name":"high"},{"name":"func"},{"name":"accum"}]},{"name":"if","args":[{"name":">","args":[{"name":"low"},{"name":"high"}]},{"name":"accum"},{"name":"∑", "args":[{"name":"inc","args":[{"name":"low"}]},{"name":"high"},{"name":"func"},{"name":"+","args":[{"name":"accum"},{"name":"func","args":[{"name":"low"}]}]}]}]}]}]},{"name":"∑","args":[{"name":"1"},{"name":"3"},{"name":"lambda","args":[{"name":"","args":[{"name":"x"}]},{"name":"*","args":[{"name":"x"},{"name":"x"}]}]},{"name":"0"}]}]};
-    editor.draw();
+        const editor = new modules.editor.EditorView();
+        editor.program = {"name":"letrec","args":[{"name":"inc","args":[{"name":"lambda","args":[{"name":"","args":[{"name":"x"}]},{"name":"+","args":[{"name":"x"},{"name":"1"}]}]}]},{"name":"∑","args":[{"name":"lambda","args":[{"name":"","args":[{"name":"low"},{"name":"high"},{"name":"func"},{"name":"accum"}]},{"name":"if","args":[{"name":">","args":[{"name":"low"},{"name":"high"}]},{"name":"accum"},{"name":"∑", "args":[{"name":"inc","args":[{"name":"low"}]},{"name":"high"},{"name":"func"},{"name":"+","args":[{"name":"accum"},{"name":"func","args":[{"name":"low"}]}]}]}]}]}]},{"name":"∑","args":[{"name":"1"},{"name":"3"},{"name":"lambda","args":[{"name":"","args":[{"name":"x"}]},{"name":"*","args":[{"name":"x"},{"name":"x"}]}]},{"name":"0"}]}]};
+        editor.draw();
 
-    window.addEventListener("keypress", (e)=>editor.onkeypress(e));
-    window.addEventListener("keydown", (e)=>editor.onkeydown(e));
-    
-    document.getElementById("container").appendChild(editor.container);
+        window.addEventListener("keypress", (e)=>editor.onkeypress(e));
+        window.addEventListener("keydown", (e)=>editor.onkeydown(e));
+        
+        document.getElementById("container").appendChild(editor.container);
+
+        editor.onedit = ()=>{
+            const testWorker = new Worker('worker-starter.js?1');
+            testWorker.addEventListener("message", function(msg) {
+                const flat = modules.language.flattenIdxToPair(editor.root);
+                let [idx, value] = msg.data;
+                const pair = flat.get(idx);
+                console.log("worker:", pair, value);
+                if (value.message) {
+                    value = "DeadResult: " + value.message;
+                }
+                const view = editor.map.get(pair);
+                view.head.title = value;
+
+                if (idx === 0) {
+                    document.getElementById("code").innerHTML = value;
+                }
+            });
+            testWorker.postMessage(editor.root);
+        };
     </script>

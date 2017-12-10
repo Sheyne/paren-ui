@@ -5,9 +5,9 @@
         "target": "es6",
         "module": "amd",
         "sourceMap": true,
-        "outFile": "main.js"
+        "outFile": "worker.js"
     },
     "files": [
-        "editor.ts"
+        "worker.ts"
     ]
 }
