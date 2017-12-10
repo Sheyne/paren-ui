@@ -72,10 +72,11 @@
                 let [idx, value] = msg.data;
                 const pair = flat.get(idx);
                 console.log("worker:", pair, value);
+                const view = editor.map.get(pair);
                 if (value.message) {
+                    view.table.classList.add("dead-result");
                     value = "DeadResult: " + value.message;
                 }
-                const view = editor.map.get(pair);
                 view.head.title = value;
 
                 if (idx === 0) {
