@@ -1,6 +1,6 @@
 import { Lisp } from "./language";
 
-export const program : Lisp.Pair = {
+export const program: Lisp.Pair = {
     "name": "letrec",
     "args": [
         {

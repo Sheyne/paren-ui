@@ -2,3 +2,5 @@ node_modules/*
 bin/*
 .vscode/*
 package-lock.json
+*.js
+*.map

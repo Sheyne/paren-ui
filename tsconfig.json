@@ -1,13 +1,13 @@
 {
     "compilerOptions": {
         "strict": true,
-        "lib": ["es6"],
-        "target": "es6",
+        "lib": ["dom", "es6"],
+        "target": "es5",
+        "module": "amd",
         "sourceMap": true,
-        "outDir": "bin",
-        "module": "CommonJS"
+        "outFile": "main.js"
     },
-    "include": [
-        "*.ts"
+    "files": [
+        "editor.ts"
     ]
 }

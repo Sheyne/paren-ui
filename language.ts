@@ -13,11 +13,12 @@ export namespace Lisp {
 
     export type Result = string | number | boolean | Lambda | DeadResult;
     export type Info = {
-        results: Map<Pair, Result>;
+        callback?: (token: Pair, result: Result) => void;
     };
     interface Lambda {
         (args: Pair[], context: Context, info: Info): Result;
         numArgs?: number;
+        name?: string;
     }
 
     class DeadResult {
@@ -238,7 +239,9 @@ export namespace Lisp {
             res = lookup(el.name, context, info);
             res = calllisp(res, el.args, context, info);
         }
-        info.results.set(el, res);
+        if (info.callback) {
+            info.callback(el, res);
+        }
         return res;
     }
 }
