@@ -44,7 +44,7 @@ export namespace Lisp {
             return v;
         }
         if (typeof (v) !== "number") {
-            return new DeadResult("can only " + message + " numbers");
+            return new DeadResult("can only '" + message + "' numbers");
         }
         return v;
     }
@@ -266,4 +266,8 @@ export function flattenIdxToPair(prog: Lisp.Pair): Map<number, Lisp.Pair> {
     const flat: Map<number, Lisp.Pair> = new Map();
     traversal(prog, (a, b) => flat.set(b, a), [0]);
     return flat;
+}
+
+export function toString(prog: Lisp.Pair): string {
+    return JSON.stringify(prog, ["args", "name"]);
 }

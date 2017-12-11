@@ -2,20 +2,20 @@ import { Lisp, flattenPairToIdx } from "./language";
 declare function postMessage(message: any): void;
 
 addEventListener("message", (evt) => {
-    const prog: Lisp.Pair = evt.data;
+    const prog: Lisp.Pair = JSON.parse(evt.data);
     const flat = flattenPairToIdx(prog);
     
     const info: Lisp.Info = {
         callback: (a, b) => {
             if (typeof(b) === "function") {
                 if (b.name) {
-                    b = "Lambda: " + b.name;
+                    b = b.name;
                 } else {
                     b = "Lambda";
                 }
             }
             
-            postMessage([flat.get(a), b]);
+            postMessage(JSON.stringify([flat.get(a), b]));
         }
     };
 

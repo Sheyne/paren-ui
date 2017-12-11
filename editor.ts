@@ -28,6 +28,7 @@ export class EditorView {
     selection: number | undefined = undefined;
 
     onedit?: () => void;
+    ondraw?: () => void;
 
     set program(prog: AttributedPair) {
         addParentConnections(prog);
@@ -39,6 +40,9 @@ export class EditorView {
         const startNode = new PairView(this.root, this);
         this.container.innerHTML = "";
         this.container.appendChild(startNode.table);
+        if (this.ondraw) {
+            this.ondraw();
+        }
     }
 
     constrainSelection() {
@@ -112,9 +116,9 @@ export class EditorView {
                     this.active.name = "";
                 }
             }
-        }
-        if (this.onedit !== undefined) {
-            this.onedit();
+            if (this.onedit !== undefined) {
+                this.onedit();
+            }
         }
         this.draw();
     }

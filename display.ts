@@ -11,14 +11,17 @@ export type AttributedPair = {
 export class PairView {
     table: HTMLTableElement = document.createElement("table");
     row : HTMLTableRowElement = document.createElement("tr");
-    head: HTMLTableCellElement = document.createElement("td");
+    head: HTMLDivElement = document.createElement("td");
+    value: HTMLDivElement = document.createElement("td");
     args?: HTMLTableCellElement | HTMLTableRowElement;
 
     constructor(func: AttributedPair, editor: EditorView) {
         editor.map.set(func, this);    
         this.row.appendChild(this.head);
+        this.row.appendChild(this.value);
         this.table.appendChild(this.row);  
-        
+        this.value.classList.add("value-cell");
+
         this.table.addEventListener("click", function(e) {
             editor.active = func;
             editor.selection = undefined;
@@ -60,6 +63,7 @@ export class PairView {
         this.args = document.createElement("td");
         this.row.appendChild(this.args);
         this.args.classList.add("args");
+        this.row.appendChild(this.value);
     }
 
     add(child: PairView, horiz: boolean) {
