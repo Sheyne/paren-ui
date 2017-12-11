@@ -1,4 +1,5 @@
 import { PairView, AttributedPair } from "./display";
+import { flattenIdxToPair, toString, Lisp } from "./language";
 
 function makePair(): AttributedPair {
     return { name: "" };
@@ -19,6 +20,59 @@ function addParentConnections(parent: AttributedPair) {
     }
 }
 
+function uglyCodeToInvokeWorkers(editor: EditorView) {
+    let prevWorker: Worker | undefined = undefined;
+    const cachedResults = new Map<number, Lisp.Result>();
+    
+    function isDeadResult(x: Lisp.Result): x is Lisp.DeadResult {
+        return !!((x as any).message);
+    }
+    
+    function redrawValues() {
+        const flat = flattenIdxToPair(editor.root);
+        for (let [idx, value] of cachedResults) {
+            const pair = flat.get(idx);
+            if (! pair) {
+                console.log("wierd behavior 737162");
+                continue;
+            }
+            const view = editor.map.get(pair);
+            if (! view) {
+                console.log("wierd behavior 37482");
+                continue;
+            }
+            if (isDeadResult(value)) {
+                view.table.classList.add("dead-result");
+                value = "Error: " + value.message;
+            }
+            view.value.innerHTML = ""+value;
+        }
+    }
+    
+    editor.ondraw = ()=>{
+        redrawValues();
+    }
+    
+    editor.onedit = ()=>{
+        if (prevWorker) {
+            prevWorker.terminate();
+        }
+        document.getElementById("code")!.innerHTML = "processing";
+        const testWorker = new Worker('worker-starter.js?4');
+        prevWorker = testWorker;
+        cachedResults.clear();
+        testWorker.addEventListener("message", function(msg) {
+            let [idx, value] = JSON.parse(msg.data);
+            cachedResults.set(idx, value);
+            redrawValues();
+        });
+        const codeString = toString(editor.root);
+        testWorker.postMessage(codeString);
+        document.getElementById("code")!.innerHTML = codeString;
+    };
+    editor.onedit();
+}
+
 export class EditorView {
     map: Map<AttributedPair, PairView> = new Map();
 
@@ -29,6 +83,18 @@ export class EditorView {
 
     onedit?: () => void;
     ondraw?: () => void;
+
+    constructor(program: Lisp.Pair) {
+        this.container.tabIndex = 0;
+        this.container.addEventListener("keydown", (e)=>{
+            this.onkeydown(e);
+        });
+        this.container.addEventListener("keypress", (e)=>{
+            this.onkeypress(e);
+        });
+        this.program = program;
+        uglyCodeToInvokeWorkers(this);
+    }
 
     set program(prog: AttributedPair) {
         addParentConnections(prog);
