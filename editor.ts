@@ -78,7 +78,7 @@ export class EditorView {
 
     container = document.createElement("div");
     root: AttributedPair = { "name": "" };
-    active: AttributedPair = this.root;
+    active: AttributedPair | undefined = this.root;
     selection: number | undefined = undefined;
 
     onedit?: () => void;
@@ -91,6 +91,16 @@ export class EditorView {
         });
         this.container.addEventListener("keypress", (e)=>{
             this.onkeypress(e);
+        });
+        this.container.addEventListener("focus", (e)=>{
+            if (this.active === undefined) {
+                this.active = this.root;
+                this.draw();
+            }
+        });
+        this.container.addEventListener("blur", (e)=>{
+            this.active = undefined;
+            this.draw();
         });
         this.program = program;
         uglyCodeToInvokeWorkers(this);
@@ -112,6 +122,7 @@ export class EditorView {
     }
 
     constrainSelection() {
+        if (!this.active) return;
         if (this.selection !== undefined) {
             if (this.selection > this.active.name.length) {
                 this.selection = this.active.name.length;
@@ -120,6 +131,7 @@ export class EditorView {
     }
 
     onkeydown(e: KeyboardEvent) {
+        if (!this.active) return;
         if (e.keyCode == 37) {
             this.constrainSelection();
             if (this.selection !== undefined) {
@@ -194,6 +206,7 @@ export class EditorView {
     }
 
     up() {
+        if (!this.active) return;
         var p = this.active.parent;
         if (p) {
             var idx = p.args.indexOf(this.active);
@@ -201,6 +214,7 @@ export class EditorView {
         }
     }
     down() {
+        if (!this.active) return;
         var p = this.active.parent;
         if (p) {
             var idx = p.args.indexOf(this.active);
@@ -208,17 +222,20 @@ export class EditorView {
         }
     }
     left() {
+        if (!this.active) return;
         if (this.active.parent) {
             this.active = this.active.parent;
         }
     }
     right() {
+        if (!this.active) return;
         if (this.active.args && this.active.args[0]) {
             this.active = this.active.args[0];
         }
     }
 
     addCellBelow() {
+        if (!this.active) return;
         const parent = this.active.parent;
         if (parent) {
             var index = parent.args.indexOf(this.active);
@@ -231,6 +248,7 @@ export class EditorView {
     }
 
     onkeypress(e: KeyboardEvent) {
+        if (!this.active) return;
         if (e.keyCode == 40) {
             // open paren
             if (this.active.args) {
