@@ -1,0 +1,39 @@
+
+.value-cell:not(:empty):before {
+    content: "=";
+}
+.args {
+    border-radius: 0.5em;
+    border: 1px solid black;
+    border-width: 0px 1px;
+    padding: 0em 0.5em;
+}
+
+.dead-result {
+    background: rgba(255, 0, 0, 0.15);
+    border: 1px solid red;
+    margin: -1px;
+}
+
+.children-selected table {
+    background-color: red;
+}
+
+.horiz-component:not(:last-child) > table > tr:last-child::after  {
+    content: ",";
+    vertical-align: middle;
+    display: table-cell;
+}
+
+#cursor {
+    display: inline-block;
+    height: 0.7em;
+    padding: 0.3em 0.1em 0.3em 0.1em;
+    margin: -0.3em -0.1em -0.3em -0.1em;
+    background: rgba(0,0,0,0.5);
+}
+
+table {
+    padding: 1px;
+    border-spacing: 0px;
+}
