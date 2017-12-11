@@ -8,6 +8,6 @@
         "outFile": "main.js"
     },
     "files": [
-        "editor.ts"
+        "main.ts"
     ]
 }

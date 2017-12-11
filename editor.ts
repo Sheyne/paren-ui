@@ -23,7 +23,7 @@ export class EditorView {
     map: Map<AttributedPair, PairView> = new Map();
 
     container = document.createElement("div");
-    private root: AttributedPair = { "name": "" };
+    root: AttributedPair = { "name": "" };
     active: AttributedPair = this.root;
     selection: number | undefined = undefined;
 

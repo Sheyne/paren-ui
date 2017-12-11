@@ -56,54 +56,5 @@
     
     <script src="minimal-loader.js">
     </script>
-    <script src="main.js?2">
-    </script>
-    <script>
-        const editor = new modules.editor.EditorView();
-        editor.program = {"name":"letrec","args":[{"name":"inc","args":[{"name":"lambda","args":[{"name":"","args":[{"name":"x"}]},{"name":"+","args":[{"name":"x"},{"name":"1"}]}]}]},{"name":"sum","args":[{"name":"lambda","args":[{"name":"","args":[{"name":"low"},{"name":"high"},{"name":"func"},{"name":"accum"}]},{"name":"if","args":[{"name":">","args":[{"name":"low"},{"name":"high"}]},{"name":"accum"},{"name":"sum", "args":[{"name":"inc","args":[{"name":"low"}]},{"name":"high"},{"name":"func"},{"name":"+","args":[{"name":"accum"},{"name":"func","args":[{"name":"low"}]}]}]}]}]}]},{"name":"sum","args":[{"name":"1"},{"name":"3"},{"name":"lambda","args":[{"name":"","args":[{"name":"x"}]},{"name":"*","args":[{"name":"x"},{"name":"x"}]}]},{"name":"0"}]}]};
-        editor.draw();
-
-        window.addEventListener("keypress", (e)=>editor.onkeypress(e));
-        window.addEventListener("keydown", (e)=>editor.onkeydown(e));
-        
-        document.getElementById("container").appendChild(editor.container);
-
-        let prevWorker = undefined;
-        const cachedResults = new Map();
-
-        function redrawValues() {
-            const flat = modules.language.flattenIdxToPair(editor.root);
-            for (let [idx, value] of cachedResults) {
-                const pair = flat.get(idx);
-                const view = editor.map.get(pair);
-                if (value.message) {
-                    view.table.classList.add("dead-result");
-                    value = "Error: " + value.message;
-                }
-                view.value.innerHTML = value;
-            }
-        }
-
-        editor.ondraw = ()=>{
-            redrawValues();
-        }
-
-        editor.onedit = ()=>{
-            if (prevWorker) {
-                prevWorker.terminate();
-            }
-            document.getElementById("code").innerHTML = "processing";
-            const testWorker = new Worker('worker-starter.js?4');
-            prevWorker = testWorker;
-            cachedResults.clear();
-            testWorker.addEventListener("message", function(msg) {
-                let [idx, value] = JSON.parse(msg.data);
-                cachedResults.set(idx, value);
-                redrawValues();
-            });
-            const codeString = modules.language.toString(editor.root);
-            testWorker.postMessage(codeString);
-            document.getElementById("code").innerHTML = codeString;
-        };
-        editor.onedit();
+    <script src="main.js?3">
     </script>
