@@ -3,12 +3,16 @@
         <link rel="stylesheet" href="style.css" />
     </head>
     <body>
+        This project is an incredibly alpha-quality experiment in code editor UIs. Its hacked together, so don't 
+        expect it to be bug free. Its also changing rapidly. If you want to contribute, send pull requests to 
+        <a href="https://github.com/Sheyne/paren-ui">https://github.com/Sheyne/paren-ui</a>.
         <div>
         <b>How to use:</b> navigate with the mouse or arrow keys (up and down move between arguments). "Enter" enters edit mode. "Esc" exits edit mode. 
-        Type to rename things. Vertical elements in parens are function arguments. ^T toggles "horizontal" mode for a cell. Note that if 
+        Type to rename things. Vertical elements in parens are function arguments. ctrl-alt-b toggles "horizontal" mode for a cell (I'm in the market for a better shortcut). Note that if 
         you are immediatly inside of a horizontal cell, it unfolds to vertical. Comma makes a new element immeditately after the current one, as
         does "Enter" if you're already in edit mode. Edits output continuously, be careful of putting the code in an infinite loop, which will 
-        currently hang the GUI. </div>
+        currently hang the GUI. Syntax should feel very lisp-like, but <code>(a b c)</code> is written <code>a(b c)</code>. Also 
+        <code>letrec</code> binds values to identifiers <code>letrec(name1(binding1), ..., nameN(bindingN), valueToExecute)</code>.</div>
         
         <div>The default example above computes the summation from for <code>i = low</code> to <code>i = high</code> of <code>func(i)</code>.</div>
         
