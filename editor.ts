@@ -251,17 +251,29 @@ export class EditorView {
         if (!this.active) return;
         if (e.keyCode == 40) {
             // open paren
-            if (this.active.args) {
-                this.active = this.active.args[0];
+            let newElement : AttributedPair | undefined = undefined;
+            if (this.selection !== undefined) {
+                newElement = {
+                    name: this.active.name.substring(this.selection),
+                    args: this.active.args,
+                };
+                this.active.name = this.active.name.substring(0, this.selection);
+                this.selection = 0;
             } else {
-                var newElement = makePair();
+                if (this.active.args) {
+                    this.active = this.active.args[0];
+                } else {
+                    newElement = makePair();                    
+                }
+            }
+            if (newElement !== undefined) {
                 this.active.args = [newElement];
                 if (hasArgs(this.active)) {
                     newElement.parent = this.active;
                 }
-                this.active = newElement;
+                this.active = newElement;    
             }
-            this.selection = undefined;
+    this.selection = undefined;
         } else if (e.keyCode == 44) {
             // ,
             this.addCellBelow();
