@@ -19,9 +19,21 @@ const editor2 = new EditorView({
     ]
 });
 const editor3 = new EditorView(program);
+const editor4 = new EditorView({'name': 'index', args: [
+    {name: 'list', args: [{name: '1'}, {name:'2'}, {name:'5'}]},
+    {name: '2'},
+]})
+const editor5 = new EditorView({
+    'name': 'concat',
+    args: [{name: "'hello"}, {name: "' world"}]
+})
 editor1.draw();
 editor2.draw();
 editor3.draw();
+editor4.draw();
+editor5.draw();
 window.document.getElementById("container1")!.appendChild(editor1.container);
 window.document.getElementById("container2")!.appendChild(editor2.container);
 window.document.getElementById("container3")!.appendChild(editor3.container);
+window.document.getElementById("container4")!.appendChild(editor4.container);
+window.document.getElementById("container5")!.appendChild(editor5.container);

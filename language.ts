@@ -11,7 +11,11 @@ export namespace Lisp {
         };
     };
 
-    export type Result = string | number | boolean | Lambda | DeadResult;
+    interface ResultArray {
+        [n: number]: Result | ResultArray;
+    }
+
+    export type Result = string | number | boolean | ResultArray | Lambda | DeadResult;
     export type Info = {
         callback?: (token: Pair, result: Result) => void;
     };
@@ -24,6 +28,56 @@ export namespace Lisp {
     export class DeadResult {
         constructor(public message: string) {
         };
+    }
+
+    const list: Lambda = (args, context, info) => {
+        let res: Result[] = [];
+        for (const e of args) {
+            const v = evallisp(e, context, info);
+            if (v instanceof DeadResult) {
+                return v;
+            }
+            res.push(v);
+        }
+        return res;
+    }
+
+    const index: Lambda = (args, context, info) => {
+        if (args.length != 2) {
+            return new DeadResult("index needs exactly two arguments");
+        }
+        const a = evallisp(args[0], context, info);
+        if (a instanceof DeadResult) {
+            return a;
+        }
+        if (typeof(a) !== 'object' || !Array.isArray(a)) {
+            return new DeadResult('0th argument must be a list');
+        }
+        const b = evalnumber(args[1], context, info, 'index');
+        if (b instanceof DeadResult) {
+            return b;
+        }
+        if (a[b] === undefined) {
+            return new DeadResult(b + " not in range");
+        }
+        return a[b];
+    }
+
+    index.numArgs = 2;
+
+    const concat: Lambda = (args, context, info) => {
+        let res = "";
+        for (const e of args) {
+            const v = evallisp(e, context, info);
+            if (v instanceof DeadResult) {
+                return v;
+            }
+            if (typeof (v) !== "string") {
+                return new DeadResult("can only concat strings");
+            }
+            res += v;
+        }
+        return res;
     }
 
     const plus: Lambda = (args, context, info) => {
@@ -133,7 +187,7 @@ export namespace Lisp {
 
     iff.numArgs = 3;
 
-    const constrec: Lambda = (args, context, info) => {
+    const letrec: Lambda = (args, context, info) => {
         const newContext: Context = {
             parentContext: context,
             members: {}
@@ -207,7 +261,10 @@ export namespace Lisp {
             'lambda': lambda,
             '𝜆': lambda,
             'eval': evalf,
-            'letrec': constrec,
+            'letrec': letrec,
+            'concat': concat,
+            'list': list,
+            'index': index,
         }
     }
 

@@ -1,5 +1,6 @@
 .value-cell {
     color: rgb(173, 173, 173);
+    pointer-events: none;
 }
 
 .value-cell:not(:empty):before {

@@ -25,7 +25,7 @@ function uglyCodeToInvokeWorkers(editor: EditorView) {
     const cachedResults = new Map<number, Lisp.Result>();
     
     function isDeadResult(x: Lisp.Result): x is Lisp.DeadResult {
-        return !!((x as any).message);
+        return typeof(x) === "object" && x !== null && !!((x as any).message);
     }
     
     function redrawValues() {
