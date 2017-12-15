@@ -3,10 +3,10 @@
         "extends": [
             "tslint:recommended"
         ],
-            "jsRules": { },
+        "jsRules": { },
     "rules": {
         "strict-boolean-expressions": true,
-            "interface-name": false
+        "interface-name": false
     },
     "rulesDirectory": []
 }
