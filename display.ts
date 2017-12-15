@@ -1,44 +1,46 @@
-import { Lisp } from "./language";
 import { EditorView } from "./editor";
+import { Lisp } from "./language";
 
-export type AttributedPair = {
+export interface AttributedPair {
     name: string;
     args?: AttributedPair[];
-    horizontal? : boolean;
-    parent?: AttributedPair & {args: AttributedPair[]};
-};
+    horizontal?: boolean;
+    parent?: AttributedPair & { args: AttributedPair[] };
+}
 
 export class PairView {
-    table: HTMLTableElement = document.createElement("table");
-    row : HTMLTableRowElement = document.createElement("tr");
-    head: HTMLDivElement = document.createElement("td");
-    value: HTMLDivElement = document.createElement("td");
-    args?: HTMLTableCellElement | HTMLTableRowElement;
+    public table: HTMLTableElement = document.createElement("table");
+    public row: HTMLTableRowElement = document.createElement("tr");
+    public head: HTMLDivElement = document.createElement("td");
+    public value: HTMLDivElement = document.createElement("td");
+    public args?: HTMLTableCellElement | HTMLTableRowElement;
 
     constructor(func: AttributedPair, editor: EditorView) {
-        editor.map.set(func, this);    
+        editor.map.set(func, this);
         this.row.appendChild(this.head);
         this.row.appendChild(this.value);
-        this.table.appendChild(this.row);  
+        this.table.appendChild(this.row);
         this.value.classList.add("value-cell");
 
-        this.table.addEventListener("click", function(e) {
+        this.table.addEventListener("click", (e) => {
             editor.active = func;
             editor.selection = undefined;
             e.stopPropagation();
             editor.draw();
         });
-    
+
         this.head.innerHTML = func.name;
-        
+
         if (func === editor.active) {
             if (editor.selection === undefined) {
-                this.table.style.backgroundColor = "#aaf";			
+                this.table.style.backgroundColor = "#aaf";
             } else {
-                this.head.innerHTML = func.name.slice(0, editor.selection) + "<span id='cursor'></span>" + func.name.slice(editor.selection)
+                this.head.innerHTML = func.name.slice(0, editor.selection) +
+                    "<span id='cursor'></span>" +
+                    func.name.slice(editor.selection);
             }
         }
-        if (func.args) {
+        if (func.args !== undefined) {
             let horizontal = true;
             let containsActive = false;
             for (const f of func.args) {
@@ -49,32 +51,32 @@ export class PairView {
                     containsActive = true;
                 }
             }
-    
-            horizontal = (func.horizontal || horizontal) && !containsActive;
+
+            horizontal = (func.horizontal === true || horizontal) && !containsActive;
             this.toFunction();
-    
+
             for (const f of func.args) {
                 this.add(new PairView(f, editor), horizontal);
             }
         }
     }
 
-    toFunction() {
+    public toFunction() {
         this.args = document.createElement("td");
         this.row.appendChild(this.args);
         this.args.classList.add("args");
         this.row.appendChild(this.value);
     }
 
-    add(child: PairView, horiz: boolean) {
-        let toAdd : HTMLTableElement | HTMLTableCellElement = child.table;
+    public add(child: PairView, horiz: boolean) {
+        let toAdd: HTMLTableElement | HTMLTableCellElement = child.table;
         if (horiz) {
             const cell = document.createElement("td");
             cell.classList.add("horiz-component");
             cell.appendChild(child.table);
             toAdd = cell;
         }
-        if (!this.args) {
+        if (this.args === undefined) {
             throw new Error("invariant violated");
         }
         this.args.appendChild(toAdd);

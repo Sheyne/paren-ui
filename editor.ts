@@ -1,19 +1,19 @@
-import { PairView, AttributedPair } from "./display";
-import { flattenIdxToPair, toString, Lisp } from "./language";
+import { AttributedPair, PairView } from "./display";
+import { flattenIdxToPair, Lisp, toString } from "./language";
 
 function makePair(): AttributedPair {
     return { name: "" };
 }
 
 function hasArgs(pair: AttributedPair): pair is AttributedPair & { args: AttributedPair[] } {
-    return !!pair.args;
+    return pair.args !== undefined;
 }
 
 function addParentConnections(parent: AttributedPair) {
     if (hasArgs(parent)) {
         for (const element of parent.args) {
             element.parent = parent;
-            if (element.args) {
+            if (element.args !== undefined) {
                 addParentConnections(element);
             }
         }
@@ -21,23 +21,23 @@ function addParentConnections(parent: AttributedPair) {
 }
 
 function uglyCodeToInvokeWorkers(editor: EditorView) {
-    let prevWorker: Worker | undefined = undefined;
+    let prevWorker: Worker | undefined;
     const cachedResults = new Map<number, Lisp.Result>();
-    
+
     function isDeadResult(x: Lisp.Result): x is Lisp.DeadResult {
-        return typeof(x) === "object" && x !== null && !!((x as any).message);
+        return typeof (x) === "object" && x !== null && !!((x as any).message);
     }
-    
+
     function redrawValues() {
         const flat = flattenIdxToPair(editor.root);
         for (let [idx, value] of cachedResults) {
             const pair = flat.get(idx);
-            if (! pair) {
+            if (pair === undefined) {
                 console.log("wierd behavior 737162");
                 continue;
             }
             const view = editor.map.get(pair);
-            if (! view) {
+            if (view === undefined) {
                 console.log("wierd behavior 37482");
                 continue;
             }
@@ -45,24 +45,24 @@ function uglyCodeToInvokeWorkers(editor: EditorView) {
                 view.table.classList.add("dead-result");
                 value = "Error: " + value.message;
             }
-            view.value.innerHTML = ""+value;
+            view.value.innerHTML = "" + value;
         }
     }
-    
-    editor.ondraw = ()=>{
+
+    editor.ondraw = () => {
         redrawValues();
-    }
-    
-    editor.onedit = ()=>{
-        if (prevWorker) {
+    };
+
+    editor.onedit = () => {
+        if (prevWorker !== undefined) {
             prevWorker.terminate();
         }
         document.getElementById("code")!.innerHTML = "processing";
-        const testWorker = new Worker('worker-starter.js?4');
+        const testWorker = new Worker("worker-starter.js?4");
         prevWorker = testWorker;
         cachedResults.clear();
-        testWorker.addEventListener("message", function(msg) {
-            let [idx, value] = JSON.parse(msg.data);
+        testWorker.addEventListener("message", (msg) => {
+            const [idx, value] = JSON.parse(msg.data);
             cachedResults.set(idx, value);
             redrawValues();
         });
@@ -74,31 +74,31 @@ function uglyCodeToInvokeWorkers(editor: EditorView) {
 }
 
 export class EditorView {
-    map: Map<AttributedPair, PairView> = new Map();
+    public map: Map<AttributedPair, PairView> = new Map();
 
-    container = document.createElement("div");
-    root: AttributedPair = { "name": "" };
-    active: AttributedPair | undefined = this.root;
-    selection: number | undefined = undefined;
+    public container = document.createElement("div");
+    public root: AttributedPair = { name: "" };
+    public active: AttributedPair | undefined = this.root;
+    public selection: number | undefined = undefined;
 
-    onedit?: () => void;
-    ondraw?: () => void;
+    public onedit?: () => void;
+    public ondraw?: () => void;
 
     constructor(program: Lisp.Pair) {
         this.container.tabIndex = 0;
-        this.container.addEventListener("keydown", (e)=>{
+        this.container.addEventListener("keydown", (e) => {
             this.onkeydown(e);
         });
-        this.container.addEventListener("keypress", (e)=>{
+        this.container.addEventListener("keypress", (e) => {
             this.onkeypress(e);
         });
-        this.container.addEventListener("focus", (e)=>{
+        this.container.addEventListener("focus", (e) => {
             if (this.active === undefined) {
                 this.active = this.root;
                 this.draw();
             }
         });
-        this.container.addEventListener("blur", (e)=>{
+        this.container.addEventListener("blur", (e) => {
             this.active = undefined;
             this.draw();
         });
@@ -111,18 +111,18 @@ export class EditorView {
         this.root = prog;
     }
 
-    draw() {
+    public draw() {
         this.map.clear();
         const startNode = new PairView(this.root, this);
         this.container.innerHTML = "";
         this.container.appendChild(startNode.table);
-        if (this.ondraw) {
+        if (this.ondraw !== undefined) {
             this.ondraw();
         }
     }
 
-    constrainSelection() {
-        if (!this.active) return;
+    public constrainSelection() {
+        if (this.active === undefined) { return; }
         if (this.selection !== undefined) {
             if (this.selection > this.active.name.length) {
                 this.selection = this.active.name.length;
@@ -130,9 +130,9 @@ export class EditorView {
         }
     }
 
-    onkeydown(e: KeyboardEvent) {
-        if (!this.active) return;
-        if (e.keyCode == 37) {
+    public onkeydown(e: KeyboardEvent) {
+        if (this.active === undefined) { return; }
+        if (e.keyCode === 37) {
             this.constrainSelection();
             if (this.selection !== undefined) {
                 if (this.selection === 0) {
@@ -146,15 +146,15 @@ export class EditorView {
             }
             e.preventDefault();
         }
-        if (e.keyCode == 38) {
+        if (e.keyCode === 38) {
             this.up();
             e.preventDefault();
         }
         if (e.key === "b" && e.ctrlKey && e.altKey) {
-            this.active.horizontal = !this.active.horizontal;
+            this.active.horizontal = this.active.horizontal !== true;
             e.preventDefault();
         }
-        if (e.keyCode == 39) {
+        if (e.keyCode === 39) {
             this.constrainSelection();
             if (this.selection !== undefined) {
                 this.selection += 1;
@@ -167,7 +167,7 @@ export class EditorView {
             }
             e.preventDefault();
         }
-        if (e.keyCode == 40) {
+        if (e.keyCode === 40) {
             this.down();
             e.preventDefault();
         }
@@ -177,8 +177,8 @@ export class EditorView {
             this.constrainSelection();
             if (this.active.name === "") {
                 const parent = this.active.parent;
-                if (parent) {
-                    var idx = (parent.args!).indexOf(this.active);
+                if (parent !== undefined) {
+                    const idx = (parent.args!).indexOf(this.active);
                     parent.args.splice(idx, 1);
                     if (parent.args.length === 0) {
                         this.active = parent;
@@ -190,8 +190,9 @@ export class EditorView {
                 this.selection = undefined;
             } else {
                 if (this.selection !== undefined) {
-                    if (this.selection) {
-                        this.active.name = this.active.name.substring(0, this.selection - 1) + this.active.name.substring(this.selection);
+                    if (this.selection !== 0) {
+                        this.active.name = this.active.name.substring(0, this.selection - 1) +
+                            this.active.name.substring(this.selection);
                         this.selection -= 1;
                     }
                 } else {
@@ -205,53 +206,61 @@ export class EditorView {
         this.draw();
     }
 
-    up() {
-        if (!this.active) return;
-        var p = this.active.parent;
-        if (p) {
-            var idx = p.args.indexOf(this.active);
+    public up() {
+        if (this.active === undefined) { return; }
+        const p = this.active.parent;
+        if (p !== undefined) {
+            const idx = p.args.indexOf(this.active);
             this.active = p.args![Math.max(idx - 1, 0)];
         }
     }
-    down() {
-        if (!this.active) return;
-        var p = this.active.parent;
-        if (p) {
-            var idx = p.args.indexOf(this.active);
+    public down() {
+        if (this.active === undefined) { return; }
+        const p = this.active.parent;
+        if (p !== undefined) {
+            const idx = p.args.indexOf(this.active);
             this.active = p.args![Math.min(idx + 1, p.args.length - 1)];
         }
     }
-    left() {
-        if (!this.active) return;
-        if (this.active.parent) {
+    public left() {
+        if (this.active === undefined) { return; }
+        if (this.active.parent !== undefined) {
             this.active = this.active.parent;
         }
     }
-    right() {
-        if (!this.active) return;
-        if (this.active.args && this.active.args[0]) {
+    public right() {
+        if (this.active === undefined) { return; }
+        if (this.active.args !== undefined && this.active.args[0] !== undefined) {
             this.active = this.active.args[0];
         }
     }
 
-    addCellBelow() {
-        if (!this.active) return;
-        const parent = this.active.parent;
-        if (parent) {
-            var index = parent.args.indexOf(this.active);
-            var newElement = makePair();
-            newElement.parent = this.active.parent;
-            parent.args.splice(index + 1, 0, newElement);
-            this.active = newElement;
-            this.selection = undefined;
+    public addCellNear(element: AttributedPair, offset: 0 | 1) {
+        const parent = element.parent;
+        if (parent !== undefined) {
+            const index = parent.args.indexOf(element);
+            const newElement = makePair();
+            newElement.parent = parent;
+            parent.args.splice(index + offset, 0, newElement);
+            return newElement;
         }
     }
 
-    onkeypress(e: KeyboardEvent) {
-        if (!this.active) return;
-        if (e.keyCode == 40) {
+    public addCellByCursor() {
+        if (this.active === undefined) { return; }
+        const newElement = this.addCellNear(this.active, 0);
+        if (newElement !== undefined) {
+            newElement.name = this.active.name.slice(0, this.selection);
+            this.active.name = this.active.name.slice(this.selection);
+            this.selection = 0;
+        }
+    }
+
+    public onkeypress(e: KeyboardEvent) {
+        if (this.active === undefined) { return; }
+        if (e.keyCode === 40) {
             // open paren
-            let newElement : AttributedPair | undefined = undefined;
+            let newElement: AttributedPair | undefined;
             if (this.selection !== undefined) {
                 newElement = {
                     name: this.active.name.substring(this.selection),
@@ -260,10 +269,10 @@ export class EditorView {
                 this.active.name = this.active.name.substring(0, this.selection);
                 this.selection = 0;
             } else {
-                if (this.active.args) {
+                if (this.active.args !== undefined) {
                     this.active = this.active.args[0];
                 } else {
-                    newElement = makePair();                    
+                    newElement = makePair();
                 }
             }
             if (newElement !== undefined) {
@@ -271,19 +280,22 @@ export class EditorView {
                 if (hasArgs(this.active)) {
                     newElement.parent = this.active;
                 }
-                this.active = newElement;    
+                this.active = newElement;
             }
-    this.selection = undefined;
-        } else if (e.keyCode == 44) {
+            this.selection = undefined;
+        } else if (e.keyCode === 41) {
+            this.active = this.addCellNear(this.active, 1);
+            this.selection = 0;
+        } else if (e.keyCode === 44) {
             // ,
-            this.addCellBelow();
-        } else if (e.keyCode == 13) {
+            this.addCellByCursor();
+        } else if (e.keyCode === 13) {
             if (this.selection === undefined) {
                 this.selection = this.active.name.length;
             } else {
-                this.addCellBelow();
+                this.addCellByCursor();
             }
-        } else if (e.keyCode == 8) {
+        } else if (e.keyCode === 8) {
             // delete
             return;
         } else if (e.keyCode === 27) {
