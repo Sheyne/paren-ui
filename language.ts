@@ -22,6 +22,7 @@ export namespace Lisp {
     interface Lambda {
         (args: Pair[], context: Context, info: Info): Result;
         numArgs?: number;
+        funcName?: string;
         name?: string;
     }
 
@@ -41,6 +42,17 @@ export namespace Lisp {
         }
         return res;
     };
+
+    const exprToString: Lambda = (args, context, info) => {
+        if (args.length !== 1) {
+            return new DeadResult("->string needs exactly 1 argument");
+        }
+        const a = evallisp(args[0], context, info);
+
+        return "" + a;
+    };
+    exprToString.funcName = "->string";
+    exprToString.numArgs = 1;
 
     const index: Lambda = (args, context, info) => {
         if (args.length !== 2) {
@@ -270,6 +282,7 @@ export namespace Lisp {
             "concat": concat,
             "list": list,
             "index": index,
+            "->string": exprToString,
         },
     };
 

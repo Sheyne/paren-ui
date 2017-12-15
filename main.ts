@@ -25,10 +25,7 @@ const editor4 = new EditorView({
         { name: "2" },
     ],
 });
-const editor5 = new EditorView({
-    name: "concat",
-    args: [{ name: "'hello" }, { name: "' world" }],
-});
+const editor5 = new EditorView({ args: [{ name: "'hello " }, { args: [{ args: [{ name: "1" }, { name: "2" }], name: "+" }], name: "->string" }], name: "concat" });
 editor1.draw();
 editor2.draw();
 editor3.draw();

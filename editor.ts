@@ -58,7 +58,7 @@ function uglyCodeToInvokeWorkers(editor: EditorView) {
             prevWorker.terminate();
         }
         document.getElementById("code")!.innerHTML = "processing";
-        const testWorker = new Worker("worker-starter.js?4");
+        const testWorker = new Worker("worker-starter.js?5");
         prevWorker = testWorker;
         cachedResults.clear();
         testWorker.addEventListener("message", (msg) => {
