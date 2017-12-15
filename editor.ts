@@ -175,28 +175,46 @@ export class EditorView {
             // delete
             e.preventDefault();
             this.constrainSelection();
-            if (this.active.name === "") {
-                const parent = this.active.parent;
-                if (parent !== undefined) {
-                    const idx = (parent.args!).indexOf(this.active);
-                    parent.args.splice(idx, 1);
-                    if (parent.args.length === 0) {
-                        this.active = parent;
-                        (parent as AttributedPair).args = undefined;
-                    } else {
-                        this.active = parent.args![Math.max(0, idx - 1)];
+            if (this.selection !== undefined) {
+                if (this.selection !== 0) {
+                    this.active.name = this.active.name.substring(0, this.selection - 1) +
+                        this.active.name.substring(this.selection);
+                    this.selection -= 1;
+                } else {
+                    const parent = this.active.parent;
+                    if (parent !== undefined) {
+                        const index = parent.args.indexOf(this.active);
+                        if (index > 0) {
+                            const newActive = parent.args[index - 1];
+                            if (newActive.args !== undefined) {
+                                this.selection = undefined;
+                                this.active = newActive.args[0];
+                            } else {
+                                const oldActive = this.active;
+                                newActive.args = oldActive.args;
+                                this.selection = newActive.name.length;
+                                newActive.name += oldActive.name;
+                                this.active = newActive;
+                            }
+                        }
                     }
                 }
-                this.selection = undefined;
             } else {
-                if (this.selection !== undefined) {
-                    if (this.selection !== 0) {
-                        this.active.name = this.active.name.substring(0, this.selection - 1) +
-                            this.active.name.substring(this.selection);
-                        this.selection -= 1;
-                    }
-                } else {
+                if (this.active.name !== "") {
                     this.active.name = "";
+                } else {
+                    const parent = this.active.parent;
+                    if (parent !== undefined) {
+                        const idx = (parent.args!).indexOf(this.active);
+                        parent.args.splice(idx, 1);
+                        if (parent.args.length === 0) {
+                            this.active = parent;
+                            (parent as AttributedPair).args = undefined;
+                        } else {
+                            this.active = parent.args![Math.max(0, idx - 1)];
+                        }
+                    }
+                    this.selection = undefined;
                 }
             }
             if (this.onedit !== undefined) {
