@@ -195,6 +195,7 @@ export class EditorView {
                                 this.selection = newActive.name.length;
                                 newActive.name += oldActive.name;
                                 this.active = newActive;
+                                parent.args.splice(index, 1);
                             }
                         }
                     }
