@@ -382,22 +382,30 @@ export class EditorView {
             // delete
             return;
         } else if (e.keyCode === 27) {
-            this.selection = undefined;
+            this.exitEditMode();
         } else {
-            this.constrainSelection();
-            if (this.selection === undefined) {
-                this.active.name = String.fromCharCode(e.keyCode);
-                this.selection = 1;
-            } else {
-                this.active.name = this.active.name.slice(0, this.selection) +
-                    String.fromCharCode(e.keyCode) +
-                    this.active.name.slice(this.selection);
-                this.selection += 1;
-            }
+            this.type(String.fromCharCode(e.keyCode));
         }
         if (this.onedit !== undefined) {
             this.onedit();
         }
         this.draw();
+    }
+
+    public exitEditMode() {
+        this.selection = undefined;
+    }
+
+    public type(s: string) {
+        if (this.active === undefined) { return; }
+        this.constrainSelection();
+        if (this.selection === undefined) {
+            this.active.name = s;
+            this.selection = 1;
+        } else {
+            this.active.name = this.active.name.slice(0, this.selection) + s +
+                this.active.name.slice(this.selection);
+            this.selection += 1;
+        }
     }
 }

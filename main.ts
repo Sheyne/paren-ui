@@ -1,17 +1,30 @@
 import { EditorView } from "./editor";
 
-{
-    const editor = new EditorView({ args: [{ args: [{ name: "1" }], name: "a" }, { args: [{ args: [{ name: "1" }, { name: "2" }], name: "+" }], name: "b" }, { name: "a" }], name: "letrec" });
-    editor.draw();
+const setupAnimation = (editor: EditorView, steps: Array<"exitEditMode" | "right" | "down" | "up" | "left" | ["type", string]>) => {
     let animationStep = 0;
-    const steps: Array<"right" | "down" | "up" | "left"> = ["right", "down", "down", "up", "right", "right", "left", "left", "left"];
     const interval = setInterval(() => {
         const step = steps[animationStep % steps.length];
-        editor[step]();
-        window.document.getElementById("container-arrowkey-arrows")!.style.color = "black";
+        const arrows = editor.container.parentElement!.getElementsByClassName("arrows")[0] as HTMLElement;
+        arrows.classList.remove("material-icons");
+        if (Array.isArray(step)) {
+            editor.type(step[1]);
+            arrows.innerHTML = step[1];
+        } else {
+            editor[step]();
+            if (step === "left" || step === "right" || step === "up" || step === "down") {
+                arrows.classList.add("material-icons");
+                arrows.innerHTML = "keyboard_arrow_" + step;
+            } else if (step === "exitEditMode") {
+                arrows.innerHTML = "ESC";
+            }
+        }
+        arrows.style.color = "black";
         setTimeout(() => {
-            window.document.getElementById("container-arrowkey-arrows")!.style.color = "#aaa";
+            arrows.style.color = "#aaa";
         }, 200);
+        if (editor.onedit !== undefined) {
+            editor.onedit();
+        }
         editor.draw();
         animationStep += 1;
     }, 1000);
@@ -19,9 +32,14 @@ import { EditorView } from "./editor";
         clearInterval(interval);
         window.document.getElementById("container-arrowkey-arrows")!.innerHTML = "";
     });
-    window.document.getElementById("container-arrowkey")!.appendChild(editor.container);
     editor.active = editor.root;
     editor.draw();
+};
+
+{
+    const editor = new EditorView({ args: [{ args: [{ name: "1" }], name: "a" }, { args: [{ args: [{ name: "1" }, { name: "2" }], name: "+" }], name: "b" }, { name: "a" }], name: "letrec" });
+    window.document.getElementById("container-arrowkey")!.appendChild(editor.container);
+    setupAnimation(editor, [["type", "l"], ["type", "e"], ["type", "t"], ["type", "r"], ["type", "e"], ["type", "c"], "exitEditMode", "right", "down", "down", "up", "right", "right", "left", "left", "left"]);
 }
 
 const editor1 = new EditorView({ name: "+", args: [{ name: "1" }, { name: "5" }, { name: "2" }] });
