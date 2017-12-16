@@ -1,5 +1,5 @@
 import { AttributedPair, PairView } from "./display";
-import { flattenIdxToPair, Lisp, toString } from "./language";
+import { flattenIdxToPair, fromString, Lisp, toString } from "./language";
 
 function makePair(): AttributedPair {
     return { name: "" };
@@ -92,6 +92,16 @@ export class EditorView {
         this.container.addEventListener("keypress", (e) => {
             this.onkeypress(e);
         });
+        this.container.addEventListener("copy", (e) => {
+            this.oncopy(e);
+        });
+        this.container.addEventListener("cut", (e) => {
+            this.oncut(e);
+        });
+        this.container.addEventListener("paste", (e) => {
+            this.onpaste(e);
+        });
+
         this.container.addEventListener("focus", (e) => {
             if (this.active === undefined) {
                 this.active = this.root;
@@ -128,6 +138,54 @@ export class EditorView {
                 this.selection = this.active.name.length;
             }
         }
+    }
+
+    public onpaste(e: ClipboardEvent): void {
+        const pair = fromString(e.clipboardData.getData("text/plain"));
+        if (this.active !== undefined) {
+            if (this.selection === undefined) {
+                this.active.name = pair.name;
+                this.active.args = pair.args;
+            } else {
+                const name = this.active.name;
+                this.active.name = name.slice(0, this.selection) + pair.name + name.slice(this.selection);
+                this.selection += pair.name.length;
+                this.active.args = pair.args;
+            }
+
+            addParentConnections(this.active);
+
+            if (this.onedit !== undefined) {
+                this.onedit();
+            }
+            this.draw();
+        }
+        e.preventDefault();
+    }
+
+    public oncopy(e: ClipboardEvent): void {
+        if (this.active !== undefined) {
+            e.clipboardData.setData("text/plain", toString(this.active));
+        }
+        e.preventDefault();
+    }
+
+    public oncut(e: ClipboardEvent): void {
+        if (this.active !== undefined) {
+            e.clipboardData.setData("text/plain", toString(this.active));
+            if (this.active.parent !== undefined) {
+                this.active.parent.args.splice(this.active.parent.args.indexOf(this.active), 1);
+                if (this.active.parent.args.length === 0) {
+                    (this.active.parent as AttributedPair).args = undefined;
+                }
+            }
+
+            if (this.onedit !== undefined) {
+                this.onedit();
+            }
+            this.draw();
+        }
+        e.preventDefault();
     }
 
     public onkeydown(e: KeyboardEvent) {
@@ -200,6 +258,8 @@ export class EditorView {
                                 this.active = newActive;
                                 parent.args.splice(index, 1);
                             }
+                        } else {
+                            this.selection = undefined;
                         }
                     }
                 }

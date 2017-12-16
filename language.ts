@@ -346,3 +346,8 @@ export const flattenIdxToPair = (prog: Lisp.Pair): Map<number, Lisp.Pair> => {
 export const toString = (prog: Lisp.Pair): string => {
     return JSON.stringify(prog, ["args", "name"]);
 };
+
+export const fromString = (prog: string): Lisp.Pair => {
+    return JSON.parse(prog);
+    // TODO: any kind of validation that prog is well-formed
+};
