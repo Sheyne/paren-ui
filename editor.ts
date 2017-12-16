@@ -132,6 +132,13 @@ export class EditorView {
 
     public onkeydown(e: KeyboardEvent) {
         if (this.active === undefined) { return; }
+        if (e.key === "b" && e.ctrlKey && e.altKey) {
+            this.active.horizontal = this.active.horizontal !== true;
+            e.preventDefault();
+        }
+        if (e.metaKey || e.metaKey || e.altKey || e.ctrlKey) {
+            return;
+        }
         if (e.keyCode === 37) {
             this.constrainSelection();
             if (this.selection !== undefined) {
@@ -148,10 +155,6 @@ export class EditorView {
         }
         if (e.keyCode === 38) {
             this.up();
-            e.preventDefault();
-        }
-        if (e.key === "b" && e.ctrlKey && e.altKey) {
-            this.active.horizontal = this.active.horizontal !== true;
             e.preventDefault();
         }
         if (e.keyCode === 39) {
@@ -277,6 +280,9 @@ export class EditorView {
 
     public onkeypress(e: KeyboardEvent) {
         if (this.active === undefined) { return; }
+        if (e.metaKey || e.metaKey || e.altKey || e.ctrlKey) {
+            return;
+        }
         if (e.keyCode === 40) {
             // open paren
             let newElement: AttributedPair | undefined;
@@ -319,8 +325,6 @@ export class EditorView {
             return;
         } else if (e.keyCode === 27) {
             this.selection = undefined;
-        } else if (e.key === "b" && e.altKey) {
-            return;
         } else {
             this.constrainSelection();
             if (this.selection === undefined) {
