@@ -4,22 +4,10 @@ import { EditorView } from "./editor";
     const editor = new EditorView({ args: [{ args: [{ name: "1" }], name: "a" }, { args: [{ args: [{ name: "1" }, { name: "2" }], name: "+" }], name: "b" }, { name: "a" }], name: "letrec" });
     editor.draw();
     let animationStep = 0;
-    const steps: Array<"r" | "d" | "u" | "l"> = ["r", "d", "d", "u", "r", "r", "l", "l", "l"];
+    const steps: Array<"right" | "down" | "up" | "left"> = ["right", "down", "down", "up", "right", "right", "left", "left", "left"];
     const interval = setInterval(() => {
         const step = steps[animationStep % steps.length];
-        if (step === "r") {
-            editor.right();
-            window.document.getElementById("container-arrowkey-arrows")!.innerHTML = "keyboard_arrow_right";
-        } else if (step === "l") {
-            window.document.getElementById("container-arrowkey-arrows")!.innerHTML = "keyboard_arrow_left";
-            editor.left();
-        } else if (step === "u") {
-            window.document.getElementById("container-arrowkey-arrows")!.innerHTML = "keyboard_arrow_up";
-            editor.up();
-        } else if (step === "d") {
-            window.document.getElementById("container-arrowkey-arrows")!.innerHTML = "keyboard_arrow_down";
-            editor.down();
-        }
+        editor[step]();
         window.document.getElementById("container-arrowkey-arrows")!.style.color = "black";
         setTimeout(() => {
             window.document.getElementById("container-arrowkey-arrows")!.style.color = "#aaa";
