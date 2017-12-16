@@ -1,6 +1,8 @@
 <html>
     <head>
         <link rel="stylesheet" href="style.css" />
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
+        rel="stylesheet" />
     </head>
     <body>
         <p>This project is an incredibly alpha-quality experiment in code editor UIs. Its hacked together, so don't 
@@ -14,21 +16,26 @@
         currently hang the GUI. Syntax should feel very lisp-like, but <code>(a b c)</code> is written <code>a(b c)</code>. Also 
         <code>letrec</code> binds values to identifiers <code>letrec(name1(binding1), ..., nameN(bindingN), valueToExecute)</code>.</p>
             
-        <p>Functions are all prefix</p>
+        <h3>Arrow key demo</h3>
+        <div id="container-arrowkey">
+        <i id="container-arrowkey-arrows" style="font-size: 200%;" class="material-icons"></i>
+        </div>
+        <h3>Functions are all prefix</h3>
         <div id="container1">
         </div>
-        <p>You can bind names to things</p>
+        <h3>You can bind names to things</h3>
         <div id="container2">
         </div>
-        <p>Example 3 computes the summation from for <code>i = low</code> to <code>i = high</code> of <code>func(i)</code>.</p>
+        <h3>Example 3</h3>
+        <p>Computes the summation from for <code>i = low</code> to <code>i = high</code> of <code>func(i)</code>.</p>
         <div id="container3">
         </div>
         
-        <p>Minimal list support</p>
+        <h3>Minimal list support</h3>
         <div id="container4">
         </div>
 
-        <p>And string concatenation</p>
+        <h3>And string concatenation</h3>
         <div id="container5">
         </div>
         
