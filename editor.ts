@@ -57,7 +57,6 @@ function uglyCodeToInvokeWorkers(editor: EditorView) {
         if (prevWorker !== undefined) {
             prevWorker.terminate();
         }
-        document.getElementById("code")!.innerHTML = "processing";
         const testWorker = new Worker("worker-starter.js?5");
         prevWorker = testWorker;
         cachedResults.clear();
@@ -68,7 +67,6 @@ function uglyCodeToInvokeWorkers(editor: EditorView) {
         });
         const codeString = toString(editor.root);
         testWorker.postMessage(codeString);
-        document.getElementById("code")!.innerHTML = codeString;
     };
     editor.onedit();
 }
