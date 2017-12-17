@@ -1,6 +1,13 @@
 import { AttributedPair, PairView } from "./display";
 import { flattenIdxToPair, fromString, Lisp, toString } from "./language";
 
+export const LEFT_KEY = 37;
+export const UP_KEY = 38;
+export const RIGHT_KEY = 39;
+export const DOWN_KEY = 40;
+export const ESC_KEY = 27;
+export const DELETE_KEY = 8;
+
 function makePair(): AttributedPair {
     return { name: "" };
 }
@@ -195,7 +202,7 @@ export class EditorView {
         if (e.metaKey || e.metaKey || e.altKey || e.ctrlKey) {
             return;
         }
-        if (e.keyCode === 37) {
+        if (e.keyCode === LEFT_KEY) {
             this.constrainSelection();
             if (this.selection !== undefined) {
                 if (this.selection === 0) {
@@ -209,11 +216,11 @@ export class EditorView {
             }
             e.preventDefault();
         }
-        if (e.keyCode === 38) {
+        if (e.keyCode === UP_KEY) {
             this.up();
             e.preventDefault();
         }
-        if (e.keyCode === 39) {
+        if (e.keyCode === RIGHT_KEY) {
             this.constrainSelection();
             if (this.selection !== undefined) {
                 this.selection += 1;
@@ -226,11 +233,11 @@ export class EditorView {
             }
             e.preventDefault();
         }
-        if (e.keyCode === 40) {
+        if (e.keyCode === DOWN_KEY) {
             this.down();
             e.preventDefault();
         }
-        if (e.keyCode === 8) {
+        if (e.keyCode === DELETE_KEY) {
             // delete
             e.preventDefault();
             this.constrainSelection();
@@ -378,10 +385,10 @@ export class EditorView {
             } else {
                 this.addCellByCursor();
             }
-        } else if (e.keyCode === 8) {
+        } else if (e.keyCode === DELETE_KEY) {
             // delete
             return;
-        } else if (e.keyCode === 27) {
+        } else if (e.keyCode === ESC_KEY) {
             this.exitEditMode();
         } else {
             this.type(String.fromCharCode(e.keyCode));
